@@ -31,4 +31,7 @@ fn main() {
 	for x in 0..10 {
 		println!("{}", x);
 	}
+	for arg in std::env::args() {
+		println!("{}", arg);
+	}
 }
