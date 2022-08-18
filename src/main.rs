@@ -1,9 +1,12 @@
 #[cfg(test)]
 pub mod unittest;
-
 pub mod example;
 pub mod generics;
 pub mod input;
+
+//testing dependencies
+use rand::Rng;
+use colored::*;
 
 //Made test.rs for mod test
 pub mod test;
@@ -61,6 +64,14 @@ fn main() {
 
 	//testing getting input
 	let mut in1 = String::new();
-	input::getinput(&mut in1);
+	input::getconsoleinput(&mut in1);
 	println!("Your input: {}", in1);
+	//random numbers
+	let random_number = rand::thread_rng().gen_range(-1.0..1.0);
+	println!("Random Number: {}", random_number);
+	//testing colored output
+	let color = Color::TrueColor{ r: 255, g: 0, b: 255 };
+	println!("{}","Hello".color(color));
+	let col = "NOPE".to_owned().color(color);
+	println!("{}", col);
 }
