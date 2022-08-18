@@ -12,18 +12,25 @@ pub use test::test2;
 pub use test::test3 as three;
 
 fn main() {
+	//testing print formatting
 	let num = 25;
 	println!("Hello, world! {}", num);
+	//testing example and test modules
 	example::sayGoodbye();
+	example::printmul();
 	example::time();
 	test::test();
 	test::test2();
+	test::test3();
+	//testing aliasing
+	test2();
 	three();
-	example::printmul();
+	//testing types
 	let st = example::Secrets { x: 42, y: 64 };
 	println!("{:?}", st);
 	let _q = example::Quest::Long;
 	let _nothing = ();
+	//testing functions
 	println!("Answer: {}", example::answer(1, 2));
 	println!("42nd fibbonachi number: {}", example::fibbonachi(42));
 
@@ -35,7 +42,7 @@ fn main() {
 	for arg in std::env::args() {
 		println!("{}", arg);
 	}
-
+	//testing generics
 	let number_list = vec![1, 4, 2, 21, 53, 44];
 	let largest = generics::get_largest(number_list);
 	println!("{}", largest);
