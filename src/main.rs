@@ -31,7 +31,23 @@ fn main() {
 	for x in 0..10 {
 		println!("{}", x);
 	}
+	//example of getting command-line args
 	for arg in std::env::args() {
 		println!("{}", arg);
 	}
+
+	let number_list = vec![1, 4, 2, 21, 53, 44];
+	let largest = generics::get_largest(number_list);
+	println!("{}", largest);
+
+	let number_list = vec!['y', 'm', 'a', 'q'];
+	let largest = generics::get_largest(number_list);
+	println!("{}", largest);
+
+	let p = generics::Point{x:1.0, y:2};
+	p.print();
+	let p1 = generics::Point{x:'.', y:'t'};
+	p1.print();
+	let p2 = p.mixup(p1);
+	p2.print();
 }

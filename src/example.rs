@@ -1,3 +1,4 @@
+#[allow(unreachable_code)]
 pub fn fibbonachi(n:u32) -> u32 {
 	let mut fprev = 0;
 	let mut fcurr = 1;
@@ -14,7 +15,7 @@ pub fn fibbonachi(n:u32) -> u32 {
 	}
 	return fcurr;
 	//recursion
-	return fibbonachi(n-1) +  fibbonachi(n - 2);
+	return fibbonachi(n-1) + fibbonachi(n - 2);
 }
 
 //Function with arguments
@@ -44,6 +45,7 @@ pub fn time() {
 	println!("{}", chrono::Local::now());
 }
 
+#[allow(non_snake_case)]
 pub fn sayGoodbye() {
 	println!("Goodbye");
 }
