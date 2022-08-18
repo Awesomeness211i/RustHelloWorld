@@ -1,2 +1,2 @@
 #! /bin/bash
-./target/release/test
+./target/release/RustHelloWorld

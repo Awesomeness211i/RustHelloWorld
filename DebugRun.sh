@@ -1,2 +1,2 @@
 #! /bin/bash
-./target/debug/test
+./target/debug/RustHelloWorld

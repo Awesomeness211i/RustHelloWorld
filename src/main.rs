@@ -3,6 +3,7 @@ pub mod unittest;
 
 pub mod example;
 pub mod generics;
+pub mod input;
 
 //Made test.rs for mod test
 pub mod test;
@@ -57,4 +58,9 @@ fn main() {
 	p1.print();
 	let p2 = p.mixup(p1);
 	p2.print();
+
+	//testing getting input
+	let mut in1 = String::new();
+	input::getinput(&mut in1);
+	println!("Your input: {}", in1);
 }
