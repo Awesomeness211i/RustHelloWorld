@@ -1,8 +1,15 @@
+#![allow(non_snake_case)]
+
 #[cfg(test)]
 pub mod unittest;
+
 pub mod example;
 pub mod generics;
 pub mod input;
+pub mod network;
+
+//using the standard library
+use std::{thread, sync::{mpsc}};
 
 //testing dependencies
 use rand::Rng;
@@ -15,7 +22,128 @@ pub use test::test2;
 //renaming something using aliasing
 pub use test::test3 as three;
 
+trait ApplicationLayer {
+	fn OnAdd(self: &Self);
+	fn OnRemove(self: &Self);
+	fn OnEvent(self: &Self);
+
+	fn Update(self: &Self);
+	fn Render(self: &Self);
+
+	fn GetUUID(&self) -> u64;
+}
+
+struct LayerStack {
+	layers: Vec<Box<dyn ApplicationLayer>>,
+	layerInsertIndex: usize,
+	overlayInsertIndex: usize,
+}
+
+impl LayerStack {
+	pub fn new() -> Self {
+		return Self {
+			layers: Vec::new(),
+			layerInsertIndex: 0,
+			overlayInsertIndex: 0,
+		};
+	}
+	pub fn iter(&self) -> impl Iterator<Item = &Box<dyn ApplicationLayer>> {
+		return self.layers.iter().rev();
+	}
+
+	pub fn AddOverlay(&mut self, layer: Box<dyn ApplicationLayer>) {
+		layer.OnAdd();
+		self.layers.push(layer);
+		self.overlayInsertIndex += 1;
+	}
+	pub fn RemoveOverlay(&mut self, uuid: u64) {
+		if let Some(i) = self.layers[self.layerInsertIndex..self.overlayInsertIndex].iter().position(|l| { return l.GetUUID() == uuid; }) {
+			self.layers[i].OnRemove();
+			self.layers.remove(i);
+			self.overlayInsertIndex -= 1;
+		}
+	}
+	pub fn AddLayer(self: &mut Self, layer: Box<dyn ApplicationLayer>) {
+		layer.OnAdd();
+		self.layers.insert(self.layerInsertIndex, layer);
+		self.layerInsertIndex += 1;
+	}
+	pub fn RemoveLayer(self: &mut Self, uuid: u64) {
+		if let Some(i) = self.layers[..self.layerInsertIndex].iter().position(|l| { return l.GetUUID() == uuid; }) {
+			self.layers[i].OnRemove();
+			self.layers.remove(i);
+			self.layerInsertIndex -= 1;
+		}
+	}
+}
+
+struct ExampleLayer {
+	uuid: u64,
+}
+
+impl ExampleLayer {
+	pub fn new() -> ExampleLayer {
+		return ExampleLayer {
+			uuid: rand::thread_rng().gen(),
+		};
+	}
+}
+
+impl ApplicationLayer for ExampleLayer {
+	fn OnAdd(self: &Self) {
+		println!("OnAdd: {}", self.uuid);
+	}
+	fn OnRemove(self: &Self) {
+		println!("OnRemove: {}", self.uuid);
+	}
+	fn OnEvent(self: &Self) {
+		println!("OnEvent: {}", self.uuid);
+	}
+	fn Update(self: &Self) {
+		println!("Update: {}", self.uuid);
+	}
+	fn Render(self: &Self) {
+		println!("Render: {}", self.uuid);
+	}
+	fn GetUUID(&self) -> u64 {
+		return self.uuid;
+	}
+}
+
 fn main() {
+	//testing layerstack things
+	let mut layerstack = LayerStack::new();
+	let example0 = Box::new(ExampleLayer::new());
+	let example1 = Box::new(ExampleLayer::new());
+	let example2 = Box::new(ExampleLayer::new());
+	let uuid0 = example0.GetUUID();
+	let uuid1 = example1.GetUUID();
+	let uuid2 = example2.GetUUID();
+	layerstack.AddLayer(example0);
+	layerstack.AddOverlay(example1);
+	layerstack.AddLayer(example2);
+	for layer in layerstack.iter() {
+		layer.Update();
+		layer.Render();
+		layer.OnEvent();
+	}
+	layerstack.RemoveLayer(uuid0);
+	layerstack.RemoveLayer(uuid2);
+	layerstack.RemoveOverlay(uuid1);
+
+	//testing concurrency
+	let (transmitter, reciever) = mpsc::channel();
+	let transmitter2 = transmitter.clone();
+
+	let handle = thread::spawn(move || {
+		let val = String::from("Hello World");
+		transmitter.send(val).unwrap();
+	});
+
+	let recieved = reciever.recv().unwrap();
+	println!("Got: {recieved}");
+
+	println!("Other Tests:");
 	//testing print formatting
 	let num = 25;
 	println!("Hello, world! {}", num);
@@ -62,10 +190,10 @@ fn main() {
 	let p2 = p.mixup(p1);
 	p2.print();
 
-	//testing getting input
+	/*testing getting input
 	let mut in1 = String::new();
 	input::getconsoleinput(&mut in1);
-	println!("Your input: {}", in1);
+	println!("Your input: {}", in1);*/
 	//random numbers
 	let random_number = rand::thread_rng().gen_range(-1.0..1.0);
 	println!("Random Number: {}", random_number);
@@ -74,4 +202,9 @@ fn main() {
 	println!("{}","Hello".color(color));
 	let col = "NOPE".to_owned().color(color);
 	println!("{}", col);
+	//network
+	let a = network::Ipa::v4(0, 0, 0, 0);
+	println!("{}", a.to_string());
+	let b = network::Ipa::v6(0, 0, 0, 0, 0, 0, 0, 0);
+	println!("{}", b.to_string());
 }
